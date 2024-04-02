@@ -1,0 +1,15 @@
+/* style.css */
+
+.button {
+    background-color: #3498db; /* Color de fondo del botón */
+    color: white; /* Color del texto */
+    padding: 10px 20px; /* Espacio interior del botón */
+    border: none; /* Elimina el borde */
+    border-radius: 50px; /* Radio de las esquinas redondeadas */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+  }
+  
+  .button:hover {
+    background-color: #2980b9; /* Cambia el color de fondo cuando el cursor está encima */
+  }
+  
