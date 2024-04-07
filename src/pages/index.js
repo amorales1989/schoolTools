@@ -1,13 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import NameListModal from '../components/Modals/nameListModal';
 import AddNewTeensModal from '../components/Modals/addnewteens';
 import { Ionicons } from '@expo/vector-icons';
+import getAlumnsWoman from '../service/getAlumnsWoman';
+import getAlumnsMan from '../service/getAlumnsMan';
 
 export default function OtherScreen({ navigation }) {
     const [nameListModalVisible, setNameListModalVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [sexFilter, setSexFilter] = useState('');
+    const [alumns, setAlumns] = useState([]);
+
+useEffect(() => {
+    // Esta función se ejecutará cada vez que cambie el estado de alumns
+    setAlumns('');
+}, []); 
+    const handleGetAlumnsWoman = async () => {
+        try {
+            const data = await getAlumnsWoman();
+           // console.log(data); // Haz lo que necesites con los datos obtenidos
+            setAlumns(data);
+        } catch (error) {
+            console.error('Error al obtener las alumnas:', error);
+            // Aquí puedes mostrar un mensaje de error al usuario si lo deseas
+        }
+    };
+
+    const handleGetAlumnsMan = async () => {
+        try {
+            const data = await getAlumnsMan();
+           // console.log(data); // Haz lo que necesites con los datos obtenidos
+            setAlumns(data);
+        } catch (error) {
+            console.error('Error al obtener las alumnos:', error);
+            // Aquí puedes mostrar un mensaje de error al usuario si lo deseas
+        }
+    };
+
 
     return (
         <View style={styles.container}>
@@ -22,7 +51,7 @@ export default function OtherScreen({ navigation }) {
                     style={styles.button} 
                     onPress={() => {
                         setNameListModalVisible(true);
-                        setSexFilter('femenino');
+                        handleGetAlumnsWoman();
                     }}
                 >
                     <Text style={styles.buttonText}>Mujeres</Text>
@@ -31,7 +60,7 @@ export default function OtherScreen({ navigation }) {
                     style={styles.button} 
                     onPress={() => {
                         setNameListModalVisible(true);
-                        setSexFilter('masculino');
+                        handleGetAlumnsMan();
                     }}
                 >
                     <Text style={styles.buttonText}>Varones</Text>
@@ -67,7 +96,7 @@ export default function OtherScreen({ navigation }) {
             <NameListModal 
                 visible={nameListModalVisible} 
                 onClose={() => setNameListModalVisible(false)} 
-                sexFilter={sexFilter}
+                alumns={alumns}
             />
             <AddNewTeensModal visible={modalVisible} onClose={() => setModalVisible(false)} />
         </View>

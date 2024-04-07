@@ -1,7 +1,6 @@
 const addNewTeens = async (body) => {
-    console.log(body)
     try {
-        const response = await fetch('http://localhost:3002/alumns', {
+        const response = await fetch('http://192.168.1.138:3006/alumns', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -13,11 +12,13 @@ const addNewTeens = async (body) => {
                 phone: body.phone,
             }),
         });
-
+        
         if (!response.ok) {
             throw new Error('Error al guardar los datos');
         }
 
+        
+        // Leer la respuesta solo si la solicitud fue exitosa
         const data = await response.json();
         return data;
     } catch (error) {

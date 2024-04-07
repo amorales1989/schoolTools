@@ -10,6 +10,7 @@ export default function AddNewTeensModal({ visible, onClose }) {
     const [errors, setErrors] = useState({});
 
     const handleSave = async () => {
+        
         const errors = {};
         if (!name.trim()) {
             errors.name = 'El nombre es requerido';
@@ -20,15 +21,17 @@ export default function AddNewTeensModal({ visible, onClose }) {
         if (!sex.trim()) {
             errors.sex = 'El sexo es requerido';
         }
+        
         // Si hay errores, detener el guardado
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
-        const body = {name, lastName, sex, phone}
+        
+        const body = {name, lastName, sex: sex.trim().toLowerCase(), phone}
         await addNewTeens(body);
         console.log('Guardando datos:', body);
-
+        
         // Cierra el modal
         onClose();
         setName('');
