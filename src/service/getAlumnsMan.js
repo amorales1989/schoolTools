@@ -1,6 +1,6 @@
 const getAlumnsMan = async () => {
     try {
-        const response = await fetch('http://192.168.1.138:3006/alumns/man', {
+        const response = await fetch('https://school-tools-f4z9ru50f-amorales1989s-projects.vercel.app/alumns/man', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

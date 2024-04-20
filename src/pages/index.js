@@ -1,24 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, BackHandler } from 'react-native';
 import NameListModal from '../components/Modals/nameListModal';
 import AddNewTeensModal from '../components/Modals/addnewteens';
+import AttendanceList from './AttendanceList';
 import { Ionicons } from '@expo/vector-icons';
 import getAlumnsWoman from '../service/getAlumnsWoman';
 import getAlumnsMan from '../service/getAlumnsMan';
+
 
 export default function OtherScreen({ navigation }) {
     const [nameListModalVisible, setNameListModalVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [alumns, setAlumns] = useState([]);
+    const [comments, setComments] = useState('Sábado 27/04 20Hs. Evento en iglesia central');
+    const [newNotifications, setNewNotifications] = useState(0);
 
-useEffect(() => {
-    // Esta función se ejecutará cada vez que cambie el estado de alumns
-    setAlumns('');
-}, []); 
+
+
+    useEffect(() => {
+        // Esta función se ejecutará cada vez que cambie el estado de alumns
+        setAlumns('');
+    }, []);
+
+    useEffect(() => {
+        const backAction = () => {
+            BackHandler.exitApp();
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
+
     const handleGetAlumnsWoman = async () => {
         try {
             const data = await getAlumnsWoman();
-           // console.log(data); // Haz lo que necesites con los datos obtenidos
+            // console.log(data); // Haz lo que necesites con los datos obtenidos
             setAlumns(data);
         } catch (error) {
             console.error('Error al obtener las alumnas:', error);
@@ -26,10 +47,14 @@ useEffect(() => {
         }
     };
 
+    const handleNewNotification = () => {
+        setNewNotifications(prevCount => prevCount + 1);
+    };
+
     const handleGetAlumnsMan = async () => {
         try {
             const data = await getAlumnsMan();
-           // console.log(data); // Haz lo que necesites con los datos obtenidos
+            // console.log(data); // Haz lo que necesites con los datos obtenidos
             setAlumns(data);
         } catch (error) {
             console.error('Error al obtener las alumnos:', error);
@@ -41,14 +66,14 @@ useEffect(() => {
     return (
         <View style={styles.container}>
             <View style={styles.content}>
-            <Image
+                <Image
                     source={require('../../assets/A2.png')} // Cambia la ruta según la ubicación de tu imagen
                     style={styles.imageContainer}
                     resizeMode="contain" // Ajusta la imagen para que se ajuste al tamaño del contenedor
                 />
-                 <Text style={styles.text}>Asistencia</Text>
-                <TouchableOpacity 
-                    style={styles.button} 
+                <Text style={styles.text}>Asistencia</Text>
+                <TouchableOpacity
+                    style={styles.button}
                     onPress={() => {
                         setNameListModalVisible(true);
                         handleGetAlumnsWoman();
@@ -56,8 +81,8 @@ useEffect(() => {
                 >
                     <Text style={styles.buttonText}>Mujeres</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                    style={styles.button} 
+                <TouchableOpacity
+                    style={styles.button}
                     onPress={() => {
                         setNameListModalVisible(true);
                         handleGetAlumnsMan();
@@ -65,37 +90,57 @@ useEffect(() => {
                 >
                     <Text style={styles.buttonText}>Varones</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                    style={styles.button} 
-                    onPress={() => {
-                       /*  setNameListModalVisible(true);
-                        setSexFilter('masculino'); */
-                    }}
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => navigation.navigate('Asistencias')} // Navega a la nueva pantalla
                 >
                     <Text style={styles.buttonText}>Ver asistencias</Text>
                 </TouchableOpacity>
-            
-            
-            <TouchableOpacity style={styles.buttonAdd} onPress={() => setModalVisible(true)}>
+
+
+                <TouchableOpacity style={styles.buttonAdd} onPress={() => setModalVisible(true)}>
                     <Text style={styles.buttonText}>Agregar nuevo</Text>
                 </TouchableOpacity>
-                <Text>poner comentarios</Text>
-            <View style={styles.footer}>
-                {/* Botones del footer con iconos */}
-                <TouchableOpacity style={styles.footerButton}>
-                    <Ionicons name="home" size={24} color="black" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.footerButton}>
-                    <Ionicons name="notifications" size={24} color="black" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.footerButton}>
-                    <Ionicons name="settings" size={24} color="black" />
-                </TouchableOpacity>
+
+                <View style={styles.textAreaContainer}>
+                    <TextInput
+                        style={[styles.textarea, { color: 'black', fontWeight: 'bold', textAlign: 'center' }]}
+                        multiline={true}
+                        numberOfLines={6}
+                        value={comments}
+                        editable={false} // No permitir la edición
+                        selectTextOnFocus={false} // No seleccionar texto al enfocar
+                    />
+
+                </View>
+
+                <View style={styles.footer}>
+
+                    <TouchableOpacity
+                        style={styles.footerButton}
+                        onPress={() => navigation.navigate('Comunidad Cristiana Don Torcuato')}
+                    >
+                        <Ionicons name="home" size={24} color="black" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.footerButton} onPress={() => handleNotificationPress()}>
+                        <Ionicons name="notifications" size={24} color="black" />
+                        {newNotifications > 0 && (
+                            <View style={styles.notificationBadge}>
+                                <Text style={styles.notificationText}>{newNotifications}</Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.footerButton} onPress={() => BackHandler.exitApp()}>
+                        <Ionicons name="exit" size={24} color="black" />
+                    </TouchableOpacity>
+
+                </View>
             </View>
-            </View>
-            <NameListModal 
-                visible={nameListModalVisible} 
-                onClose={() => setNameListModalVisible(false)} 
+            <NameListModal
+                visible={nameListModalVisible}
+                onClose={() => setNameListModalVisible(false)}
                 alumns={alumns}
             />
             <AddNewTeensModal visible={modalVisible} onClose={() => setModalVisible(false)} />
@@ -106,7 +151,7 @@ useEffect(() => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        flexDirection: 'row', // Para dividir horizontalmente
+        flexDirection: 'row', // Para dividir horizontalmente   
     },
     sidebar: {
         flex: 0.4, // El 30% del ancho total
@@ -134,17 +179,27 @@ const styles = StyleSheet.create({
     buttonAdd: {
         backgroundColor: 'rgb(0, 225, 94)',
         padding: 10,
-        borderRadius: 0,
+        borderRadius: 10,
         margin: 10,
         width: '80%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 }, // Cambia el valor de height a 4 para desplazar la sombra hacia abajo
+        shadowOpacity: 0.3,
+        shadowRadius: 0,
+        elevation: 5,
     },
     button: {
+        backgroundColor: 'rgb(200, 200, 200)',
         padding: 10,
-        borderRadius: 0,
-        marginVertical: 10,
-        width: '80%', // Ancho del 80% del contenedor
-        backgroundColor: 'rgba(0, 0, 0, 0.1)', // Color transparente de fondo
-        transition: 'background-color 0.3s', // Transición de color de fondo
+        borderRadius: 10,
+        margin: 10,
+        width: '80%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 }, // Cambia el valor de height a 4 para desplazar la sombra hacia abajo
+        shadowOpacity: 0.3,
+        shadowRadius: 0,
+        elevation: 10,
+
     },
     buttonText: {
         color: 'black',
@@ -162,11 +217,54 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         backgroundColor: '#ddd',
-        height: 60,
+        height: 50,
     },
     footerButton: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
+    textAreaContainer: {
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+        bottom: 20,
+        width: '100%',
+        marginBottom: 60, // Añade un espacio inferior
+    },
+    textarea: {
+        backgroundColor: 'white',
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderRadius: 5,
+        width: '80%',
+        height: 100,
+        paddingHorizontal: 10,
+        marginTop: 10,
+        marginBottom: 30,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 }, // Cambia el valor de height a 4 para desplazar la sombra hacia abajo
+        shadowOpacity: 0.3,
+        shadowRadius: 2,
+        elevation: 25 // Solo para Android
+    },
+    notificationBadge: {
+        position: 'absolute',
+        top: -5,
+        right: 50,
+        backgroundColor: 'red',
+        borderRadius: 10,
+        width: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    notificationText: {
+        color: 'white',
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+
+
+
 });

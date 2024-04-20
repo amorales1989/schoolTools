@@ -1,33 +1,45 @@
-// NameListModal.js
 import React, { useState } from 'react';
 import { View, Text, Modal, StyleSheet, FlatList, Button, TextInput } from 'react-native';
+import { saveAttendanceData } from '../../service/addAttendance';
+
 
 export default function NameListModal({ visible, onClose, alumns }) {
-    const data = alumns
+    const [date, setDate] = useState(getFormattedDate());
+    const [attendanceData, setAttendanceData] = useState([]);
 
-    const currentDate = new Date();
-    const day = currentDate.getDate().toString().padStart(2, '0'); // Agrega ceros a la izquierda si es necesario
-    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // El mes se indexa desde 0, así que suma 1
-    const year = currentDate.getFullYear().toString();
-    const formattedDate = `${day}/${month}/${year}`;
-   // setDate(formattedDate);
-    const [date, setDate] = useState(formattedDate);
-   /*  const handlePresenceToggle = (id) => {
-        const newData = data.map(item => {
-            if (item.id === id) {
-                return { ...item, present: !item.present };
+    // Función para obtener la fecha actual en formato DD/MM/YYYY
+    function getFormattedDate() {
+        const currentDate = new Date();
+        const day = currentDate.getDate().toString().padStart(2, '0');
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+        const year = currentDate.getFullYear().toString();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Función para manejar el cambio de estado de presencia de un alumno
+    function handlePresenceToggle(id) {
+        setAttendanceData(prevData => {
+            const newData = [...prevData];
+            const existingAttendance = newData.find(item => item.id === id);
+            if (existingAttendance) {
+                existingAttendance.present = !existingAttendance.present;
+            } else {
+                newData.push({ alumn_id: id, date: date, present: true });
             }
-            return item;
+            return newData;
         });
-        setData(newData);
-    };  */
+    }
 
- /*    const handleSave = () => {
-        console.log('Guardando...');
-        const newData = data.map(item => ({ ...item, present: false }));
-        setData(newData);
-        onClose();
-    }; */
+    // Función para manejar el evento de guardar
+    async function handleSave() {
+        try {
+            await saveAttendanceData(attendanceData);
+            onClose();
+        } catch (error) {
+            console.error('Error al guardar la información de asistencia:', error);
+            // Manejar el error según tu lógica de aplicación
+        }
+    }
 
     return (
         <Modal
@@ -49,29 +61,27 @@ export default function NameListModal({ visible, onClose, alumns }) {
                         />
                     </View>
                     <FlatList
-                        data={data} // Filtra por sexo
+                        data={alumns}
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({ item }) => (
                             <View style={styles.row}>
                                 <Text style={styles.names}>{`${item.name} ${item.lastname}`}</Text>
                                 <Button
-                                    title={/* item.present ? 'Presente' :  */'Ausente'}
-                                    color={/* item.present ? 'green' : */ 'red'}
-                                   // onPress={() => handlePresenceToggle(item.id)}
+                                    title={attendanceData.some(data => data.id === item.id && data.date === date && data.present) ? 'Presente' : 'Ausente'}
+                                    color={attendanceData.some(data => data.id === item.id && data.date === date && data.present) ? 'green' : 'red'}
+                                    onPress={() => handlePresenceToggle(item.id)}
                                 />
                             </View>
                         )}
                     />
                     <View style={styles.buttonContainer}>
-                        <Button title="Guardar" //onPress={handleSave} 
-                        />
+                        <Button title="Guardar" onPress={handleSave} />
                     </View>
                 </View>
             </View>
         </Modal>
     );
 }
-
 const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
