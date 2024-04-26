@@ -2,19 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, BackHandler } from 'react-native';
 import NameListModal from '../components/Modals/nameListModal';
 import AddNewTeensModal from '../components/Modals/addnewteens';
+import AddNewEventModal from '../components/Modals/addNewEvent';
 import AttendanceList from './AttendanceList';
 import { Ionicons } from '@expo/vector-icons';
 import getAlumnsWoman from '../service/getAlumnsWoman';
 import getAlumnsMan from '../service/getAlumnsMan';
+import getEvents from '../service/getEvents';
 
 
 export default function OtherScreen({ navigation }) {
     const [nameListModalVisible, setNameListModalVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const [addEventModalVisible, setAddEventModalVisible] = useState(false);
     const [alumns, setAlumns] = useState([]);
-    const [comments, setComments] = useState('Sábado 27/04 20Hs. Evento en iglesia central');
+    const [events, setEvents] = useState([]);
     const [newNotifications, setNewNotifications] = useState(0);
-
 
 
     useEffect(() => {
@@ -62,6 +64,17 @@ export default function OtherScreen({ navigation }) {
         }
     };
 
+    const handleGetEvents = async () => {
+        try {
+            const data = await getEvents();
+            setEvents(data);
+        } catch (error) {
+            console.log('Error al obtener los eventos', error);
+        }
+    }
+    useEffect(() => {
+        handleGetEvents()
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -104,10 +117,10 @@ export default function OtherScreen({ navigation }) {
 
                 <View style={styles.textAreaContainer}>
                     <TextInput
-                        style={[styles.textarea, { color: 'black', fontWeight: 'bold', textAlign: 'center' }]}
+                        style={[styles.textarea, { color: 'black', fontWeight: 'bold', paddingLeft: 20 }]}
                         multiline={true}
-                        numberOfLines={6}
-                        value={comments}
+                        numberOfLines={4}
+                        value={events.map(event => `${event.event_title} - ${event.event_date} ${event.event_time}`).join('\n')}
                         editable={false} // No permitir la edición
                         selectTextOnFocus={false} // No seleccionar texto al enfocar
                     />
@@ -131,7 +144,9 @@ export default function OtherScreen({ navigation }) {
                             </View>
                         )}
                     </TouchableOpacity>
-
+                    <TouchableOpacity style={styles.footerButton} onPress={() => setAddEventModalVisible(true)}>
+                        <Ionicons name="calendar" size={24} color="black" />
+                    </TouchableOpacity>
                     <TouchableOpacity style={styles.footerButton} onPress={() => BackHandler.exitApp()}>
                         <Ionicons name="exit" size={24} color="black" />
                     </TouchableOpacity>
@@ -144,6 +159,7 @@ export default function OtherScreen({ navigation }) {
                 alumns={alumns}
             />
             <AddNewTeensModal visible={modalVisible} onClose={() => setModalVisible(false)} />
+            <AddNewEventModal visible={addEventModalVisible} onClose={() => setAddEventModalVisible(false)} />
         </View>
     );
 }

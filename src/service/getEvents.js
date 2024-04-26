@@ -1,6 +1,8 @@
-const getAlumnsMan = async () => {
+
+
+const getEvents = async () => {
     try {
-        const response = await fetch('http://192.168.1.138:3006/alumns/man', {
+        const response = await fetch('http://192.168.1.138:3006/events', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -10,10 +12,7 @@ const getAlumnsMan = async () => {
         if (!response.ok) {
             throw new Error('Error al obtener los datos');
         }
-
-        // Leer la respuesta solo si la solicitud fue exitosa
-        const data = await response.json();
-        
+        const data = await response.json();  
         return data;
     } catch (error) {
         console.error('Error:', error.message);
@@ -21,4 +20,4 @@ const getAlumnsMan = async () => {
     }
 };
 
-export default getAlumnsMan;
+export default getEvents;

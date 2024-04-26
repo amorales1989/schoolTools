@@ -1,6 +1,6 @@
 const addNewTeens = async (body) => {
     try {
-        const response = await fetch('https://school-tools-f4z9ru50f-amorales1989s-projects.vercel.app/alumns', {
+        const response = await fetch('http://192.168.1.138:3006/alumns', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

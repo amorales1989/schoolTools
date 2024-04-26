@@ -19,8 +19,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/A2.png"
+        
       },
       "package": "com.a19morales89.schoolToolsapp",
       "versionCode": 1
