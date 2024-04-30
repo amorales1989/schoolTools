@@ -1,6 +1,6 @@
 const addNewTeens = async (body) => {
     try {
-        const response = await fetch('http://192.168.1.138:3006/alumns', {
+        const response = await fetch('https://api-schooltools.onrender.com/alumns', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -15,9 +15,10 @@ export default function AddNewEventModal({ visible, onClose }) {
     const handleDateChange = (event, selectedDate) => {
         setShowDatePicker(false);
         if (selectedDate) {
+            console.log(selectedDate)
             const formattedDate = formatDate(selectedDate); // Formatear la fecha
             console.log(formattedDate)
-            setEventDate(formattedDate);
+            setEventDate(selectedDate);
         }
     };
     
@@ -25,7 +26,7 @@ export default function AddNewEventModal({ visible, onClose }) {
         setShowTimePicker(false);
         if (selectedTime) {
             const formattedTime = formatTime(selectedTime); // Formatear la hora
-            setEventTime(formattedTime);
+            setEventTime(selectedTime);
         }
     };
     
@@ -60,6 +61,7 @@ const formatDate = (date) => {
     return `${day}/${month}/${year}`;
 };
 
+
 const formatTime = (time) => {
     const hour = time.getHours().toString().padStart(2, '0');
     const minute = time.getMinutes().toString().padStart(2, '0');
@@ -82,7 +84,7 @@ const formatTime = (time) => {
                     <Text style={styles.modalTitle}>Nuevo Evento</Text>
                     <Text style={styles.label}>Fecha:</Text>
                     <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
-                        <Text style={styles.inputText}>{eventDate.toLocaleDateString()}</Text>
+                    <Text style={styles.inputText}>{eventDate.toLocaleDateString('es-ES')}</Text>
                     </TouchableOpacity>
                     {showDatePicker && (
                         <DateTimePicker

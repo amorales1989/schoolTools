@@ -1,12 +1,12 @@
 const getAlumnsMan = async () => {
     try {
-        const response = await fetch('http://192.168.1.138:3006/alumns/man', {
+        const response = await fetch('https://api-schooltools.onrender.com/alumns/man', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-        
+        console.log(response)
         if (!response.ok) {
             throw new Error('Error al obtener los datos');
         }

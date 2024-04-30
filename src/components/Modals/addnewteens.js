@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
 import addNewTeens from '../../service/addNewTeens';
-
+import { Picker } from '@react-native-picker/picker';
 export default function AddNewTeensModal({ visible, onClose }) {
     const [name, setName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -10,7 +10,7 @@ export default function AddNewTeensModal({ visible, onClose }) {
     const [errors, setErrors] = useState({});
 
     const handleSave = async () => {
-        
+
         const errors = {};
         if (!name.trim()) {
             errors.name = 'El nombre es requerido';
@@ -21,17 +21,17 @@ export default function AddNewTeensModal({ visible, onClose }) {
         if (!sex.trim()) {
             errors.sex = 'El sexo es requerido';
         }
-        
+
         // Si hay errores, detener el guardado
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
-        
-        const body = {name, lastName, sex: sex.trim().toLowerCase(), phone}
+
+        const body = { name, lastName, sex: sex.trim().toLowerCase(), phone }
         await addNewTeens(body);
         console.log('Guardando datos:', body);
-        
+
         // Cierra el modal
         onClose();
         setName('');
@@ -50,7 +50,7 @@ export default function AddNewTeensModal({ visible, onClose }) {
         >
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                         <Text style={styles.closeButtonText}>X</Text>
                     </TouchableOpacity>
                     <Text style={styles.modalTitle}>Ingrasar Datos</Text>
@@ -68,19 +68,24 @@ export default function AddNewTeensModal({ visible, onClose }) {
                         placeholder="Apellido"
                     />
                     {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
-                    <TextInput
-                        style={styles.input}
-                        value={sex}
-                        onChangeText={setSex}
-                        placeholder="Sexo"
-                    />
-                    {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
+
                     <TextInput
                         style={styles.input}
                         value={phone}
                         onChangeText={setPhone}
                         placeholder="Celular"
                     />
+                    <Picker
+                        style={styles.input}
+                        selectedValue={sex}
+                        onValueChange={(itemValue) => setSex(itemValue)}
+                    >
+                        <Picker.Item label="Seleccione sexo" value="" enabled={false} />
+                        <Picker.Item label="Femenino" value="Femenino" />
+                        <Picker.Item label="Masculino" value="Masculino" />
+                    </Picker>
+                    {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
+
                     <Button title="Guardar" onPress={handleSave} />
                 </View>
             </View>

@@ -20,15 +20,20 @@ export default function NameListModal({ visible, onClose, alumns }) {
     function handlePresenceToggle(id) {
         setAttendanceData(prevData => {
             const newData = [...prevData];
-            const existingAttendance = newData.find(item => item.id === id);
-            if (existingAttendance) {
-                existingAttendance.present = !existingAttendance.present;
+            const existingAttendanceIndex = newData.findIndex(item => item.alumn_id === id && item.date === date);
+            
+            if (existingAttendanceIndex !== -1) {
+                // Si el alumno ya está en la lista de asistencia para la fecha actual
+                newData[existingAttendanceIndex].present = !newData[existingAttendanceIndex].present;
             } else {
+                // Si el alumno no está en la lista de asistencia para la fecha actual, lo agregamos como presente
                 newData.push({ alumn_id: id, date: date, present: true });
             }
+            
             return newData;
         });
     }
+    
 
     // Función para manejar el evento de guardar
     async function handleSave() {

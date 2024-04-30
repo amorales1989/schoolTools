@@ -1,6 +1,6 @@
 const addNewEvent = async (body) => {
     try {
-        const response = await fetch('http://192.168.1.138:3006/event', {
+        const response = await fetch('https://api-schooltools.onrender.com/event', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -13,11 +13,11 @@ const addNewEvent = async (body) => {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.text();
             throw new Error(errorData.error);
         }
         
-        const data = await response.json();
+        const data = await response.text();
         return data;
     } catch (error) {
         console.error('Error:', error.message);

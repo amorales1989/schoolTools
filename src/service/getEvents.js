@@ -2,7 +2,7 @@
 
 const getEvents = async () => {
     try {
-        const response = await fetch('http://192.168.1.138:3006/events', {
+        const response = await fetch('https://api-schooltools.onrender.com/events', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

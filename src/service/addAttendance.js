@@ -1,7 +1,7 @@
 // Función para enviar la información de asistencia al backend
 async function saveAttendanceData(attendanceData) {
     try {
-        const response = await fetch(`http://192.168.1.138:3006/attendance`, {
+        const response = await fetch(`https://api-schooltools.onrender.com/attendance`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
