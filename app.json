@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ChurchTools",
-    "slug": "ChurchTools",
+    "name": "ChurhTools",
+    "slug": "schoolTools-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/A2.png",
