@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 const deleteAlumnById = async (alumnId) => {
     try {
-        const response = await fetch(`${Constants.manifest.extra.REACT_APP_URL}alumns/${alumnId}`, {
+        const response = await fetch(`http://api-schooltools.onrender.com/alumns/${alumnId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 
 const editEvent = async (eventId, body) => {
     try {
-        const response = await fetch(`${Constants.manifest.extra.REACT_APP_URL}event/${eventId}`, {
+        const response = await fetch(`http://api-schooltools.onrender.com/event/${eventId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
