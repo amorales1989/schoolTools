@@ -1,12 +1,12 @@
+import Constants from 'expo-constants';
 const getAlumnsMan = async () => {
     try {
-        const response = await fetch('https://api-schooltools.onrender.com/alumns/man', {
+        const response = await fetch(`${Constants.manifest.extra.REACT_APP_URL}alumns/man`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-        console.log(response)
         if (!response.ok) {
             throw new Error('Error al obtener los datos');
         }

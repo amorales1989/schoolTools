@@ -8,21 +8,39 @@ import { Ionicons } from '@expo/vector-icons';
 import getAlumnsWoman from '../service/getAlumnsWoman';
 import getAlumnsMan from '../service/getAlumnsMan';
 import getEvents from '../service/getEvents';
+import EditNamesModal from '../components/Modals/editNamesModal';
+import ListEventModal from '../components/Modals/listEventsModal';
 
 
 export default function OtherScreen({ navigation }) {
     const [nameListModalVisible, setNameListModalVisible] = useState(false);
+    const [editNamesModalVisible, setEditNamesModalVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [addEventModalVisible, setAddEventModalVisible] = useState(false);
     const [alumns, setAlumns] = useState([]);
     const [events, setEvents] = useState([]);
-    const [newNotifications, setNewNotifications] = useState(0);
-
+    
 
     useEffect(() => {
-        // Esta función se ejecutará cada vez que cambie el estado de alumns
-        setAlumns('');
+        loadAlumns();
+        handleGetEvents();
     }, []);
+
+    const loadAlumns = async () => {
+        try {
+            const womenAlumns = await getAlumnsWoman();
+            const menAlumns = await getAlumnsMan();
+            // Filtrar los alumns que no tienen un deletedDate
+            const activeWomenAlumns = womenAlumns.filter(alumn => !alumn.deleteddate);
+            const activeMenAlumns = menAlumns.filter(alumn => !alumn.deleteddate);
+            // Combinar los alumns activos
+            const allAlumns = [...activeWomenAlumns, ...activeMenAlumns];
+            setAlumns(allAlumns);
+        } catch (error) {
+            console.error('Error al cargar los alumnos:', error);
+        }
+    };
+    
 
     useEffect(() => {
         const backAction = () => {
@@ -41,11 +59,9 @@ export default function OtherScreen({ navigation }) {
     const handleGetAlumnsWoman = async () => {
         try {
             const data = await getAlumnsWoman();
-            // console.log(data); // Haz lo que necesites con los datos obtenidos
             setAlumns(data);
         } catch (error) {
             console.error('Error al obtener las alumnas:', error);
-            // Aquí puedes mostrar un mensaje de error al usuario si lo deseas
         }
     };
 
@@ -56,33 +72,30 @@ export default function OtherScreen({ navigation }) {
     const handleGetAlumnsMan = async () => {
         try {
             const data = await getAlumnsMan();
-            // console.log(data); // Haz lo que necesites con los datos obtenidos
             setAlumns(data);
         } catch (error) {
             console.error('Error al obtener las alumnos:', error);
-            // Aquí puedes mostrar un mensaje de error al usuario si lo deseas
         }
     };
 
     const handleGetEvents = async () => {
         try {
             const data = await getEvents();
-            setEvents(data);
+            const upcomingEvents = data.slice(0, 4);
+
+            setEvents(upcomingEvents);
         } catch (error) {
             console.log('Error al obtener los eventos', error);
         }
     }
-    useEffect(() => {
-        handleGetEvents()
-    }, []);
 
     return (
         <View style={styles.container}>
             <View style={styles.content}>
                 <Image
-                    source={require('../../assets/A2.png')} // Cambia la ruta según la ubicación de tu imagen
+                    source={require('../../assets/A2.png')}
                     style={styles.imageContainer}
-                    resizeMode="contain" // Ajusta la imagen para que se ajuste al tamaño del contenedor
+                    resizeMode="contain"
                 />
                 <Text style={styles.text}>Asistencia</Text>
                 <TouchableOpacity
@@ -116,11 +129,12 @@ export default function OtherScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <View style={styles.textAreaContainer}>
+                    <Text style={styles.buttonText}>Próximos Eventos</Text>
                     <TextInput
                         style={[styles.textarea, { color: 'black', fontWeight: 'bold', paddingLeft: 20 }]}
                         multiline={true}
                         numberOfLines={4}
-                        value={events.map(event => `${event.event_title} - ${event.event_date} ${event.event_time}`).join('\n')}
+                        value={events.map(event => `${event.event_date} - ${event.event_time} - ${event.event_title}`).join('\n')}
                         editable={false} // No permitir la edición
                         selectTextOnFocus={false} // No seleccionar texto al enfocar
                     />
@@ -136,13 +150,8 @@ export default function OtherScreen({ navigation }) {
                         <Ionicons name="home" size={24} color="black" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.footerButton} onPress={() => handleNotificationPress()}>
-                        <Ionicons name="notifications" size={24} color="black" />
-                        {newNotifications > 0 && (
-                            <View style={styles.notificationBadge}>
-                                <Text style={styles.notificationText}>{newNotifications}</Text>
-                            </View>
-                        )}
+                    <TouchableOpacity style={styles.footerButton} onPress={() => setEditNamesModalVisible(true)}>
+                        <Ionicons name="pencil" size={24} color="black" />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.footerButton} onPress={() => setAddEventModalVisible(true)}>
                         <Ionicons name="calendar" size={24} color="black" />
@@ -150,16 +159,21 @@ export default function OtherScreen({ navigation }) {
                     <TouchableOpacity style={styles.footerButton} onPress={() => BackHandler.exitApp()}>
                         <Ionicons name="exit" size={24} color="black" />
                     </TouchableOpacity>
-
                 </View>
             </View>
+            <EditNamesModal
+                visible={editNamesModalVisible}
+                onClose={() => setEditNamesModalVisible(false)}
+                alumns={alumns}
+                reloadAlumns={loadAlumns} 
+            />
             <NameListModal
                 visible={nameListModalVisible}
                 onClose={() => setNameListModalVisible(false)}
                 alumns={alumns}
             />
             <AddNewTeensModal visible={modalVisible} onClose={() => setModalVisible(false)} />
-            <AddNewEventModal visible={addEventModalVisible} onClose={() => setAddEventModalVisible(false)} />
+            <ListEventModal visible={addEventModalVisible} onClose={() => setAddEventModalVisible(false)} />
         </View>
     );
 }

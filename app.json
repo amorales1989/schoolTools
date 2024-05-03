@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ChurhTools",
+    "name": "ChurchTools",
     "slug": "schoolTools-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,7 +20,6 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/A2.png"
-        
       },
       "package": "com.a19morales89.schoolToolsapp",
       "versionCode": 1
@@ -29,6 +28,7 @@
       "favicon": "./assets/A2.png"
     },
     "extra": {
+      "REACT_APP_URL": "http://api-schooltools.onrender.com/",
       "eas": {
         "projectId": "f0233eb9-67b6-46ac-873a-1ac2a602d6ea"
       }

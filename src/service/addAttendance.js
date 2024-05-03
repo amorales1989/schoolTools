@@ -1,7 +1,7 @@
-// Función para enviar la información de asistencia al backend
+import Constants from 'expo-constants';
 async function saveAttendanceData(attendanceData) {
     try {
-        const response = await fetch(`https://api-schooltools.onrender.com/attendance`, {
+        const response = await fetch(`${Constants.manifest.extra.REACT_APP_URL}attendance`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

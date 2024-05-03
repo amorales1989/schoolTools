@@ -1,15 +1,16 @@
 import Constants from 'expo-constants';
-const addNewEvent = async (body) => {
+
+const editEvent = async (eventId, body) => {
     try {
-        const response = await fetch(`${Constants.manifest.extra.REACT_APP_URL}event`, {
-            method: 'POST',
+        const response = await fetch(`${Constants.manifest.extra.REACT_APP_URL}event/${eventId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 eventTitle: body.eventTitle,
                 eventDate: body.eventDate,
-                eventTime: body.eventTime,   
+                eventTime: body.eventTime,
             }),
         });
 
@@ -25,4 +26,5 @@ const addNewEvent = async (body) => {
         throw error;
     }
 };
-export default addNewEvent;
+
+export default editEvent;
