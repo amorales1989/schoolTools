@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 const addNewEvent = async (body) => {
     try {
-        const response = await fetch(`http://api-schooltools.onrender.com/event`, {
+        const response = await fetch('http://api-schooltools.onrender.com/event', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

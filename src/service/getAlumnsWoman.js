@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 const getAlumnsWoman = async () => {
     try {
-        const response = await fetch(`http://api-schooltools.onrender.com/alumns/woman`, {
+        const response = await fetch('http://api-schooltools.onrender.com/alumns/woman', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

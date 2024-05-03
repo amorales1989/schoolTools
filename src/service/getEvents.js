@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 
 const getEvents = async () => {
     try {
-        const response = await fetch(`http://api-schooltools.onrender.com/events`, {
+        const response = await fetch('http://api-schooltools.onrender.com/events', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
