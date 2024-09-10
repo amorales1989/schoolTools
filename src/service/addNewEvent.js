@@ -1,28 +1,27 @@
-import Constants from 'expo-constants';
+import { supabase } from "../../supabase";
+
 const addNewEvent = async (body) => {
     try {
-        const response = await fetch('http://api-schooltools.onrender.com/event', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                eventTitle: body.eventTitle,
-                eventDate: body.eventDate,
-                eventTime: body.eventTime,   
-            }),
-        });
+        // Inserta un nuevo evento en la tabla 'evento'
+        const { data, error } = await supabase
+            .from('evento')
+            .insert([
+                {
+                    title: body.eventTitle,
+                    date: body.eventDate,
+                    time: body.eventTime,
+                }
+            ]);
 
-        if (!response.ok) {
-            const errorData = await response.text();
-            throw new Error(errorData.error);
+        if (error) {
+            throw new Error('Error al guardar el evento: ' + error.message);
         }
-        
-        const data = await response.text();
-        return data;
+
+        return data; // Devuelve los datos insertados
     } catch (error) {
         console.error('Error:', error.message);
         throw error;
     }
 };
+
 export default addNewEvent;

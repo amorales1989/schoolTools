@@ -1,25 +1,22 @@
-import Constants from 'expo-constants';
-const getAlumnsWoman = async () => {
+import { supabase } from "../../supabase";
+
+const getAlumnsMan = async () => {
     try {
-        const response = await fetch('http://api-schooltools.onrender.com/alumns/woman', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        
-        if (!response.ok) {
-            throw new Error('Error al obtener los datos');
+        // Realiza la consulta a la tabla 'alumns' donde 'sex' es igual a 'masculino'
+        const { data, error } = await supabase
+            .from('alumns')
+            .select('*')
+            .eq('sex', 'femenino'); // Filtro para solo traer los registros masculinos
+
+        if (error) {
+            throw new Error('Error al obtener los datos: ' + error.message);
         }
 
-        // Leer la respuesta solo si la solicitud fue exitosa
-        const data = await response.json();
-        
-        return data;
+        return data; // Devuelve los datos
     } catch (error) {
         console.error('Error:', error.message);
         throw error;
     }
 };
 
-export default getAlumnsWoman;
+export default getAlumnsMan;

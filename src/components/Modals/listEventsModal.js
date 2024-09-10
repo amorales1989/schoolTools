@@ -19,21 +19,41 @@ export default function ListEventModal({ visible, onClose }) {
     useEffect(() => {
         fetchEvents();
     }, []);
-
+console.log(events)
     const fetchEvents = async () => {
         try {
             const data = await getEvents();
-            const filterData = data.filter(event => !event.deleted_date)
-            setEvents(filterData);
+            console.log('data',data)
+            const filteredData = data.filter(event => !event.deleted_at).map(event => {
+                console.log('EVENT', event)
+                // Separar la fecha por "/"
+                const parts = event.date.split("/");
+                // Tomar solo el día y el mes
+                const formattedDate = parts.slice(0, 2).join("/");
+                // Crear un nuevo objeto de evento con la fecha formateada
+                return { ...event, date: formattedDate };
+            });
+            console.log('filteredData',filteredData)
+            setEvents(filteredData);
         } catch (error) {
             console.error('Error al obtener los eventos:', error);
         }
     };
+    
 
     const handleEditEventByIdPress = (eventId) => {
-        setSelectedEventId(eventId);
-        setEditEventByIdVisible(true);
+        // Busca el evento en la lista de eventos usando el eventId
+        const event = events.find(e => e.id === eventId);
+    console.log(event)
+        // Verifica si el evento fue encontrado
+        if (event) {
+            setSelectedEvent(event); // Establece el evento completo en el estado
+            setEditEventByIdVisible(true); // Muestra el modal de edición
+        } else {
+            console.error('Evento no encontrado');
+        }
     };
+    
 
     const handleDeleteConfirmation = (eventId, eventName) => {
         setSelectedEvent({ id: eventId, name: eventName });
@@ -49,6 +69,10 @@ export default function ListEventModal({ visible, onClose }) {
             .catch((error) => console.error('Error al eliminar:', error)); 
     };
 
+    const handleUpdateEventList = () => {
+        fetchEvents(); // Recarga la lista de eventos
+    };
+
     return (
         <Modal
             visible={visible}
@@ -62,7 +86,7 @@ export default function ListEventModal({ visible, onClose }) {
                         <Text style={styles.closeButtonText}>X</Text>
                     </TouchableOpacity>
                     <Text style={[styles.modalTitle, { textAlign: 'center' }]}>Lista de Eventos</Text>
-                    <TouchableOpacity style={[styles.buttonAdd, { alignSelf: 'center' }]} onPress={() => setAddEventModalVisible(true)}>
+                    <TouchableOpacity style={[styles.buttonAdd, { alignSelf: 'center' }]} onPress={() => setAddEventModalVisible(true)} >
                         <Text style={[styles.buttonText, { textAlign: 'center' }]}>Agregar nuevo</Text>
                     </TouchableOpacity>
                     <FlatList
@@ -70,14 +94,14 @@ export default function ListEventModal({ visible, onClose }) {
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({ item }) => (
                             <View style={styles.row}>
-                                <Text style={styles.names}>{item.event_date} - {item.event_time} - {item.event_title}</Text>
+                                <Text style={styles.names}>{item.date} - {item.time} - {item.title}</Text>
 
                                 <View style={styles.iconContainer}>
                                     <TouchableOpacity onPress={() => handleEditEventByIdPress(item.id)}>
                                         <Ionicons name="create" size={24} color="green" />
                                     </TouchableOpacity>
                                     <View style={styles.iconSeparator} />
-                                    <TouchableOpacity onPress={() => handleDeleteConfirmation(item.id, item.event_title)}>
+                                    <TouchableOpacity onPress={() => handleDeleteConfirmation(item.id, item.title)}>
                                         <Ionicons name="trash" size={24} color="red" />
                                     </TouchableOpacity>
                                 </View>
@@ -86,11 +110,12 @@ export default function ListEventModal({ visible, onClose }) {
                     />
                 </View>
             </View>
-            <AddNewEventModal visible={addEventModalVisible} onClose={() => setAddEventModalVisible(false)} />
+            <AddNewEventModal visible={addEventModalVisible} onClose={() => {setAddEventModalVisible(false), fetchEvents()}}/>
             <EditEventById
                 visible={editEventByIdVisible}
                 onClose={() => { setEditEventByIdVisible(false), fetchEvents() }}
                 eventId={selectedEventId}
+                event={selectedEvent}
             />
             <DeleteConfirmationModal
                 visible={deleteModalVisible}
@@ -113,7 +138,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 10,
         padding: 20,
-        width: '80%',
+        width: '95%',
         maxHeight: '80%',
     },
     modalTitle: {
@@ -125,9 +150,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
-        borderRadius: 30, // Establece el radio de borde
-        borderWidth: 1,
-        borderColor: 'gray',
         padding: 5, // Ajusta el espaciado interno para que se vea mejor
     },
     closeButtonText: {
@@ -150,9 +172,9 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     names: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        marginBottom: 10,
+        fontSize: 12,
+       // fontWeight: 'bold',
+        marginBottom: 0,
     },
     iconContainer: {
         flexDirection: 'row',

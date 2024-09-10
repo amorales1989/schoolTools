@@ -101,9 +101,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
-        borderRadius: 30, // Establece el radio de borde
-        borderWidth: 1,
-        borderColor: 'gray',
         padding: 5, // Ajusta el espaciado interno para que se vea mejor
     },
     closeButtonText: {
@@ -118,9 +115,8 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     names: {
-        fontSize: 15,
+        fontSize: 12,
         fontWeight: 'bold',
-        marginBottom: 10,
     },
     iconContainer: {
         flexDirection: 'row',

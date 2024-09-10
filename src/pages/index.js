@@ -10,6 +10,7 @@ import getAlumnsMan from '../service/getAlumnsMan';
 import getEvents from '../service/getEvents';
 import EditNamesModal from '../components/Modals/editNamesModal';
 import ListEventModal from '../components/Modals/listEventsModal';
+import getAlumns from '../service/getAllAlumns';
 
 
 export default function OtherScreen({ navigation }) {
@@ -18,8 +19,11 @@ export default function OtherScreen({ navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [addEventModalVisible, setAddEventModalVisible] = useState(false);
     const [alumns, setAlumns] = useState([]);
+    const [allAlumns, setAllAlumns] = useState([]);
     const [events, setEvents] = useState([]);
-    
+    const [refreshing, setRefreshing] = useState(false); // Nuevo estado para indicar si se está actualizando
+
+
 
     useEffect(() => {
         loadAlumns();
@@ -28,19 +32,22 @@ export default function OtherScreen({ navigation }) {
 
     const loadAlumns = async () => {
         try {
-            const womenAlumns = await getAlumnsWoman();
-            const menAlumns = await getAlumnsMan();
-            // Filtrar los alumns que no tienen un deletedDate
-            const activeWomenAlumns = womenAlumns.filter(alumn => !alumn.deleteddate);
-            const activeMenAlumns = menAlumns.filter(alumn => !alumn.deleteddate);
-            // Combinar los alumns activos
-            const allAlumns = [...activeWomenAlumns, ...activeMenAlumns];
-            setAlumns(allAlumns);
-        } catch (error) {
-            console.error('Error al cargar los alumnos:', error);
-        }
-    };
+            const allAlumnsData = await getAlumns();
+            const activeAlumns = allAlumnsData.filter(alumn => !alumn.deleteddate);
     
+            const womenAlumns = activeAlumns.filter(alumn => alumn.sex === 'femenino');
+            const menAlumns = activeAlumns.filter(alumn => alumn.sex === 'masculino');
+    
+            womenAlumns.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+            menAlumns.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+    
+            const sortedAlumns = [...womenAlumns, ...menAlumns];
+    
+            setAllAlumns(sortedAlumns);
+        } catch (error) {
+            console.error('Error al buscar todos los alumnos:', error);
+        }
+    };   
 
     useEffect(() => {
         const backAction = () => {
@@ -65,10 +72,6 @@ export default function OtherScreen({ navigation }) {
         }
     };
 
-    const handleNewNotification = () => {
-        setNewNotifications(prevCount => prevCount + 1);
-    };
-
     const handleGetAlumnsMan = async () => {
         try {
             const data = await getAlumnsMan();
@@ -80,14 +83,22 @@ export default function OtherScreen({ navigation }) {
 
     const handleGetEvents = async () => {
         try {
+            setRefreshing(true);
             const data = await getEvents();
-            const upcomingEvents = data.slice(0, 4);
-
+            const dataFilter = data.filter(event => !event.deleted_date);
+            const upcomingEvents = dataFilter.slice(0, 4).map(event => {
+                const parts = event.date.split("/");
+                const formattedDate = parts.slice(0, 2).join("/");
+                return { ...event, date: formattedDate };
+            });
             setEvents(upcomingEvents);
         } catch (error) {
             console.log('Error al obtener los eventos', error);
+        } finally {
+            setRefreshing(false); 
         }
-    }
+    };
+    
 
     return (
         <View style={styles.container}>
@@ -118,7 +129,7 @@ export default function OtherScreen({ navigation }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate('Asistencias')} // Navega a la nueva pantalla
+                    onPress={() => navigation.navigate('Asistencias')} 
                 >
                     <Text style={styles.buttonText}>Ver asistencias</Text>
                 </TouchableOpacity>
@@ -129,16 +140,20 @@ export default function OtherScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <View style={styles.textAreaContainer}>
-                    <Text style={styles.buttonText}>Próximos Eventos</Text>
+                    <View style={styles.refreshIconContainer}>
+                    <Text style={styles.buttonText1}>Próximos Eventos</Text>
+                        {/* <TouchableOpacity onPress={handleGetEvents}>
+                            <Ionicons name="refresh" size={24} color="black" style={styles.refreshIcon} />
+                        </TouchableOpacity> */}
+                    </View>
                     <TextInput
-                        style={[styles.textarea, { color: 'black', fontWeight: 'bold', paddingLeft: 20 }]}
+                        style={[styles.textarea, { color: 'black', paddingLeft: 10 }]}
                         multiline={true}
                         numberOfLines={4}
-                        value={events.map(event => `${event.event_date} - ${event.event_time} - ${event.event_title}`).join('\n')}
-                        editable={false} // No permitir la edición
-                        selectTextOnFocus={false} // No seleccionar texto al enfocar
+                        value={refreshing ? 'Cargando...' : events.map(event => `${event.date} - ${event.time} - ${event.title}`).join('\n')}
+                        editable={false}
+                        selectTextOnFocus={false} 
                     />
-
                 </View>
 
                 <View style={styles.footer}>
@@ -163,17 +178,17 @@ export default function OtherScreen({ navigation }) {
             </View>
             <EditNamesModal
                 visible={editNamesModalVisible}
-                onClose={() => setEditNamesModalVisible(false)}
-                alumns={alumns}
-                reloadAlumns={loadAlumns} 
+                onClose={() => { setEditNamesModalVisible(false), handleGetEvents() }}
+                alumns={allAlumns}
+                reloadAlumns={loadAlumns}
             />
             <NameListModal
                 visible={nameListModalVisible}
-                onClose={() => setNameListModalVisible(false)}
+                onClose={() => { setNameListModalVisible(false), handleGetEvents() }}
                 alumns={alumns}
             />
-            <AddNewTeensModal visible={modalVisible} onClose={() => setModalVisible(false)} />
-            <ListEventModal visible={addEventModalVisible} onClose={() => setAddEventModalVisible(false)} />
+            <AddNewTeensModal visible={modalVisible} onClose={() => { setModalVisible(false), handleGetEvents() }} />
+            <ListEventModal visible={addEventModalVisible} onClose={() => { setAddEventModalVisible(false), handleGetEvents() }} />
         </View>
     );
 }
@@ -236,6 +251,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
     },
+    buttonText1: {
+        flex: 1, // Ajusta el tamaño del texto para ocupar el espacio disponible
+        textAlign: 'center', // Centra el texto horizontalmente
+        fontSize: 16,
+        color: 'black',
+        
+    },
     buttonHover: {
         backgroundColor: 'rgba(0, 0, 0, 0.1)', // Color oscurecido al pasar el ratón
     },
@@ -260,7 +282,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         bottom: 20,
         width: '100%',
-        marginBottom: 60, // Añade un espacio inferior
+        marginBottom: 20, 
+    },
+    refreshIconContainer: {
+        flexDirection: 'row',
+        alignItems: 'center', 
+    },
+    refreshIcon: {
+        backgroundColor: 'rgb(200, 200, 200)', 
+        borderRadius: 5, 
+        marginRight: 40, 
+        marginLeft: -60, 
     },
     textarea: {
         backgroundColor: 'white',
@@ -273,28 +305,9 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 30,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 }, // Cambia el valor de height a 4 para desplazar la sombra hacia abajo
+        shadowOffset: { width: 0, height: 4 }, 
         shadowOpacity: 0.3,
         shadowRadius: 2,
-        elevation: 25 // Solo para Android
+        elevation: 25 
     },
-    notificationBadge: {
-        position: 'absolute',
-        top: -5,
-        right: 50,
-        backgroundColor: 'red',
-        borderRadius: 10,
-        width: 20,
-        height: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    notificationText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-
-
-
 });

@@ -140,9 +140,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
-        borderRadius: 30,
-        borderWidth: 1,
-        borderColor: 'gray',
         padding: 5,
     },
     closeButtonText: {

@@ -1,27 +1,27 @@
-import Constants from 'expo-constants';
+import { supabase } from "../../supabase";
+
 const addNewTeens = async (body) => {
+    console.log(body)
     try {
-        const response = await fetch('http://api-schooltools.onrender.com/alumns', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: body.name,
-                lastName: body.lastName,
-                sex: body.sex,
-                phone: body.phone,
-            }),
-        });
-        
-        if (!response.ok) {
-            throw new Error('Error al guardar los datos');
+        const { data, error } = await supabase
+            .from('alumns')
+            .insert([
+                {
+                    name: body.name,
+                    surname: body.lastName,
+                    birthday: body?.birthdate,
+                    dni: body?.dni,
+                    sex: body.sex,
+                    address: body?.address,
+                    phone: body?.phone,
+                },
+            ]);
+
+        if (error) {
+            throw new Error('Error al guardar los datos: ' + error.message);
         }
 
-        
-        // Leer la respuesta solo si la solicitud fue exitosa
-        const data = await response.json();
-        return data;
+        return data; // Devolver los datos insertados
     } catch (error) {
         console.error('Error:', error.message);
         throw error;

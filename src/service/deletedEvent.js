@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 const deleteEventById = async (eventId) => {
     try {
         console.log("service",eventId)
-        const response = await fetch(`http://localhost:3006/event/${eventId}`, {
+        const response = await fetch(`http://192.168.1.138:3006/event/${eventId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

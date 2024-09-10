@@ -1,19 +1,16 @@
-import Constants from 'expo-constants';
+import { supabase } from "../../supabase";
 
 const getEvents = async () => {
     try {
-        const response = await fetch('http://api-schooltools.onrender.com/events', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        
-        if (!response.ok) {
-            throw new Error('Error al obtener los datos');
+        const { data, error } = await supabase
+            .from('evento')  // Nombre de la tabla
+            .select('*');     // Seleccionar todos los campos
+
+        if (error) {
+            throw new Error('Error al obtener los eventos: ' + error.message);
         }
-        const data = await response.json();  
-        return data;
+
+        return data;  // Devolver los datos de eventos
     } catch (error) {
         console.error('Error:', error.message);
         throw error;

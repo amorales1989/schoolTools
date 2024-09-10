@@ -6,6 +6,9 @@ export default function AddNewTeensModal({ visible, onClose }) {
     const [name, setName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phone, setPhone] = useState('');
+    const [dni, setDni] = useState('');
+    const [address, setAddress] = useState('');
+    const [birthdate, setBirthdate] = useState('');
     const [sex, setSex] = useState('');
     const [errors, setErrors] = useState({});
 
@@ -28,7 +31,7 @@ export default function AddNewTeensModal({ visible, onClose }) {
             return;
         }
 
-        const body = { name, lastName, sex: sex.trim().toLowerCase(), phone }
+        const body = { name, lastName, sex: sex.trim().toLowerCase(), phone, dni, birthdate, address }
         await addNewTeens(body);
         console.log('Guardando datos:', body);
 
@@ -37,6 +40,9 @@ export default function AddNewTeensModal({ visible, onClose }) {
         setName('');
         setLastName('');
         setPhone('');
+        setAddress('');
+        setBirthdate('');
+        setDni('');
         setSex('');
         setErrors({});
     };
@@ -69,12 +75,6 @@ export default function AddNewTeensModal({ visible, onClose }) {
                     />
                     {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
 
-                    <TextInput
-                        style={styles.input}
-                        value={phone}
-                        onChangeText={setPhone}
-                        placeholder="Celular"
-                    />
                     <Picker
                         style={styles.input}
                         selectedValue={sex}
@@ -85,6 +85,30 @@ export default function AddNewTeensModal({ visible, onClose }) {
                         <Picker.Item label="Masculino" value="Masculino" />
                     </Picker>
                     {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
+                    <TextInput
+                        style={styles.input}
+                        value={dni}
+                        onChangeText={setDni}
+                        placeholder="DNI"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={birthdate}
+                        onChangeText={setBirthdate}
+                        placeholder="Fecha de nacimiento"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={address}
+                        onChangeText={setAddress}
+                        placeholder="Dirección"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={phone}
+                        onChangeText={setPhone}
+                        placeholder="Celular"
+                    />
 
                     <Button title="Guardar" onPress={handleSave} />
                 </View>
@@ -127,9 +151,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
-        borderRadius: 30, // Establece el radio de borde
-        borderWidth: 1,
-        borderColor: 'gray',
         padding: 5, // Ajusta el espaciado interno para que se vea mejor
     },
     closeButtonText: {
