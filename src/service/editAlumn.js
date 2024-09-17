@@ -1,20 +1,25 @@
-import Constants from 'expo-constants';
+import { supabase } from "../../supabase";
+
 const editAlumnById = async (alumnId, newData) => {
     try {
-        const response = await fetch(`http://192.168.1.138:3006/alumns/${alumnId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newData),
-        });
+        const { data, error } = await supabase
+            .from('alumns')
+            .update({
+                name: newData.name,
+                surname: newData.lastName,
+                sex: newData.sex,
+                phone: newData.phone,
+                address: newData.address,
+                birthday: newData.birthdate,
+                dni:newData.dni
+            })
+            .eq('id', alumnId);
 
-        if (!response.ok) {
-            throw new Error('Error al editar el alumno');
+        if (error) {
+            throw new Error('Error al actualizar los datos: ' + error.message);
         }
 
-        const updatedData = await response.json();
-        return updatedData;
+        return data;
     } catch (error) {
         console.error('Error:', error.message);
         throw error;

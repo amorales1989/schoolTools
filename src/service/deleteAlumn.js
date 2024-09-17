@@ -1,16 +1,27 @@
-import Constants from 'expo-constants';
-const deleteAlumnById = async (alumnId) => {
-    try {
-        const response = await fetch(`http://192.168.1.138:3006/alumns/${alumnId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+import { supabase } from "../../supabase";
 
-        if (!response.ok) {
-            throw new Error('Error al eliminar el alumno');
+const deleteAlumnById = async (alumnId) => {
+    console.log(alumnId)
+    try {
+        // Obtener la fecha y hora actual
+        const now = new Date();
+        // Restar 3 horas (180 minutos) a la fecha actual
+        now.setHours(now.getHours() - 3);
+        // Obtener la fecha y hora en formato ISO
+        const isoDate = now.toISOString();
+
+        const { data, error } = await supabase
+            .from('alumns')
+            .update({
+                deleted_at: isoDate
+            })
+            .eq('id', alumnId);
+
+        if (error) {
+            throw new Error('Error al actualizar el evento: ' + error.message);
         }
+
+        return data;
     } catch (error) {
         console.error('Error:', error.message);
         throw error;

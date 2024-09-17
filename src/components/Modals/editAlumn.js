@@ -2,27 +2,42 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
 import getAlumnById from '../../service/getAlumnById';
 import editAlumnById from '../../service/editAlumn';
+import { Picker } from '@react-native-picker/picker';
 
 export default function EditAlumnById({ visible, onClose, alumnId }) {
     const [name, setName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phone, setPhone] = useState('');
+    const [dni, setDni] = useState('');
+    const [address, setAddress] = useState('');
+    const [birthdate, setBirthdate] = useState('');
     const [sex, setSex] = useState('');
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        if (alumnId) {
-            // Llamar a la función para obtener los datos del alumno por ID
-            getAlumnById(alumnId)
-                .then((alumnData) => {
-                    // Establecer los datos del alumno en los campos correspondientes
-                    setName(alumnData.name);
-                    setLastName(alumnData.lastname);
-                    setPhone(alumnData.phone);
-                    setSex(alumnData.sex);
-                })
-                .catch((error) => console.error('Error al obtener datos del alumno:', error));
-        }
+        const fetchData = async () => {
+            if (alumnId) {
+                try {
+                    const alumnData = await getAlumnById(alumnId);
+                    // Verificar si alumnData es un array y usar el primer elemento
+                    if (Array.isArray(alumnData) && alumnData.length > 0) {
+                        const data = alumnData[0];
+                        setName(data.name || '');
+                        setLastName(data.surname || '');
+                        setPhone(data.phone || '');
+                        setAddress(data.address || '');
+                        setBirthdate(data.birthday || '');
+                        setDni(data.dni || '');
+                        setSex(data.sex || '');
+                    } else {
+                        console.error('Datos del alumno no encontrados o no es un array.');
+                    }
+                } catch (error) {
+                    console.error('Error al obtener datos del alumno:', error);
+                }
+            }
+        };
+        fetchData();
     }, [alumnId]);
 
     const handleSave = async () => {
@@ -37,24 +52,27 @@ export default function EditAlumnById({ visible, onClose, alumnId }) {
             errors.sex = 'El sexo es requerido';
         }
 
-        // Si hay errores, detener el guardado
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
 
-        const body = {name, lastName, sex: sex.trim().toLowerCase(), phone }
-        await editAlumnById(alumnId, body)
-        console.log('Guardando datos:', body);
-
-        // Cierra el modal
-        onClose();
-        setName('');
-        setLastName('');
-        setPhone('');
-        setSex('');
-        setErrors({});
-        
+        const body = { name, lastName, sex: sex.trim().toLowerCase(), phone, address, birthdate, dni };
+        try {
+            await editAlumnById(alumnId, body);
+            onClose();
+            // Limpiar los campos después de guardar
+            setName('');
+            setLastName('');
+            setPhone('');
+            setAddress('');
+            setBirthdate('');
+            setDni('');
+            setSex('');
+            setErrors({});
+        } catch (error) {
+            console.error('Error al guardar datos:', error);
+        }
     };
 
     return (
@@ -84,21 +102,40 @@ export default function EditAlumnById({ visible, onClose, alumnId }) {
                         placeholder="Apellido"
                     />
                     {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
-
+                    <Picker
+                        style={styles.input}
+                        selectedValue={sex}
+                        onValueChange={(itemValue) => setSex(itemValue)}
+                    >
+                        <Picker.Item label="Seleccione sexo" value="" enabled={false} />
+                        <Picker.Item label="Femenino" value="Femenino" />
+                        <Picker.Item label="Masculino" value="Masculino" />
+                    </Picker>
+                    {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
+                    <TextInput
+                        style={styles.input}
+                        value={dni}
+                        onChangeText={setDni}
+                        placeholder="DNI"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={birthdate}
+                        onChangeText={setBirthdate}
+                        placeholder="Fecha de nacimiento"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={address}
+                        onChangeText={setAddress}
+                        placeholder="Dirección"
+                    />
                     <TextInput
                         style={styles.input}
                         value={phone}
                         onChangeText={setPhone}
                         placeholder="Celular"
                     />
-                    <TextInput
-                        style={styles.input}
-                        value={sex}
-                        onChangeText={setSex}
-                        placeholder="Sexo"
-                    />
-                    {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
-
                     <Button title="Guardar cambios" onPress={handleSave} />
                 </View>
             </View>

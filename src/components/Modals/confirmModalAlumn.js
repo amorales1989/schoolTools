@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function DeleteConfirmationModal({ visible, onClose, onConfirm, name, lastname }) {
+export default function DeleteConfirmationModalAlumn({ visible, onClose, onConfirm, name, surname }) {
     return (
         <Modal
             visible={visible}
@@ -12,7 +12,7 @@ export default function DeleteConfirmationModal({ visible, onClose, onConfirm, n
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     <Text style={styles.modalTitle}>Confirmar eliminación</Text>
-                    <Text style={styles.modalText}>{`¿Seguro desea eliminar el evento "${name}"?`}</Text>
+                    <Text style={styles.modalText}>{`¿Seguro desea eliminar a "${name} ${surname}"?`}</Text>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.button} onPress={onClose}>
                             <Text style={styles.buttonText}>Cancelar</Text>

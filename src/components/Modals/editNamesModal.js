@@ -1,32 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import EditAlumnById from './editAlumn';
 import deleteAlumnById from '../../service/deleteAlumn';
-import DeleteConfirmationModal from './confirmModal';
-export default function EditNamesModal({ visible, onClose, alumns, reloadAlumns }) {
+import DeleteConfirmationModalAlumn from './confirmModalAlumn';
+import getAlumns from '../../service/getAllAlumns';
+
+export default function EditNamesModal({ visible, onClose, reloadAlumns }) {
     const [editAlumnByIdVisible, setEditAlumnByIdVisible] = useState(false);
     const [selectedAlumnId, setSelectedAlumnId] = useState(null);
-    const [deleteModalVisible, setDeleteModalVisible] = useState(false); // Estado para controlar la visibilidad del modal de confirmación
-    const [selectedAlumn, setSelectedAlumn] = useState(null); // Estado para almacenar los detalles del alumno seleccionado
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [selectedAlumn, setSelectedAlumn] = useState(null);
+    const [alumnosActivos, setAlumnosActivos] = useState([]);
+
+    useEffect(() => {
+        // Función para cargar y filtrar alumnos
+        const fetchAlumns = async () => {
+            try {
+                const allAlumnsData = await getAlumns();
+                const filteredAlumns = allAlumnsData.filter(alumno => !alumno.deleted_at);
+                setAlumnosActivos(filteredAlumns);
+            } catch (error) {
+                console.error('Error al obtener alumnos:', error);
+            }
+        };
+
+        fetchAlumns();
+    }, [reloadAlumns]);
 
     const handleEditAlumnByIdPress = (alumnId) => {
         setSelectedAlumnId(alumnId);
         setEditAlumnByIdVisible(true);
     };
 
-    const handleDeleteConfirmation = (alumnId, name, lastname) => {
-        setSelectedAlumn({ id: alumnId, name, lastname }); // Almacena los detalles del alumno seleccionado
-        setDeleteModalVisible(true); // Muestra el modal de confirmación
+    const handleDeleteConfirmation = (alumnId, name, surname) => {
+        setSelectedAlumn({ id: alumnId, name, surname });
+        setDeleteModalVisible(true);
     };
 
     const handleDeleteAlumn = () => {
-        deleteAlumnById(selectedAlumn.id)
-            .then(() => {
-                reloadAlumns();
-                setDeleteModalVisible(false); // Cierra el modal de confirmación después de eliminar
-            })
-            .catch((error) => console.error('Error al eliminar:', error));
+        if (selectedAlumn) {
+            deleteAlumnById(selectedAlumn.id)
+                .then(() => {
+                    reloadAlumns();
+                    setDeleteModalVisible(false);
+                })
+                .catch((error) => console.error('Error al eliminar:', error));
+        }
     };
 
     return (
@@ -43,17 +63,17 @@ export default function EditNamesModal({ visible, onClose, alumns, reloadAlumns 
                     </TouchableOpacity>
                     <Text style={styles.modalTitle}>Lista de Nombres</Text>
                     <FlatList
-                        data={alumns}
+                        data={alumnosActivos}
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({ item }) => (
                             <View style={styles.row}>
-                                <Text style={styles.names}>{`${item.name} ${item.lastname}`}</Text>
+                                <Text style={styles.names}>{`${item.name} ${item.surname}`}</Text>
                                 <View style={styles.iconContainer}>
                                     <TouchableOpacity onPress={() => handleEditAlumnByIdPress(item.id)}>
                                         <Ionicons name="create" size={24} color="green" />
                                     </TouchableOpacity>
                                     <View style={styles.iconSeparator} />
-                                    <TouchableOpacity onPress={() => handleDeleteConfirmation(item.id, item.name, item.lastname)}>
+                                    <TouchableOpacity onPress={() => handleDeleteConfirmation(item.id, item.name, item.surname)}>
                                         <Ionicons name="trash" size={24} color="red" />
                                     </TouchableOpacity>
                                 </View>
@@ -64,15 +84,15 @@ export default function EditNamesModal({ visible, onClose, alumns, reloadAlumns 
             </View>
             <EditAlumnById
                 visible={editAlumnByIdVisible}
-                onClose={() => { setEditAlumnByIdVisible(false), reloadAlumns() }}
+                onClose={() => { setEditAlumnByIdVisible(false); reloadAlumns(); }}
                 alumnId={selectedAlumnId}
             />
-            <DeleteConfirmationModal
+            <DeleteConfirmationModalAlumn
                 visible={deleteModalVisible}
                 onClose={() => setDeleteModalVisible(false)}
                 onConfirm={handleDeleteAlumn}
                 name={selectedAlumn ? selectedAlumn.name : ''}
-                lastname={selectedAlumn ? selectedAlumn.lastname : ''}
+                surname={selectedAlumn ? selectedAlumn.surname : ''}
             />
         </Modal>
     );
@@ -101,7 +121,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
-        padding: 5, // Ajusta el espaciado interno para que se vea mejor
+        padding: 5,
     },
     closeButtonText: {
         fontSize: 18,

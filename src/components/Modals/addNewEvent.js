@@ -14,16 +14,16 @@ export default function AddNewEventModal({ visible, onClose }) {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
 
-    const handleDateChange = (selectedDate) => {
+    const handleDateChange = (event, selectedDate) => {
+        setShowDatePicker(false); // Cierra el picker
         if (selectedDate) {
-            const formattedDate = formatDate(selectedDate); // Formatear la fecha
             setEventDate(selectedDate);
         }
     };
 
-    const handleTimeChange = (selectedTime) => {
+    const handleTimeChange = (event, selectedTime) => {
+        setShowTimePicker(false); // Cierra el picker
         if (selectedTime) {
-            const formattedTime = formatTime(selectedTime); // Formatear la hora
             setEventTime(selectedTime);
         }
     };
@@ -90,16 +90,14 @@ export default function AddNewEventModal({ visible, onClose }) {
                             <Text style={styles.inputText}>{formatDate(eventDate)}</Text>
                         </TouchableOpacity>
                     )}
-                    {showTimePicker && Platform.OS !== 'web' && (
+                    {showDatePicker && Platform.OS !== 'web' && (
                         <DateTimePicker
-                            value={eventTime}
-                            mode="time"
+                            value={eventDate}
+                            mode="date"
                             display="spinner"
-                            is24Hour={true} // Asegura el formato 24hs
-                            onChange={(e, time) => handleTimeChange(time)}
+                            onChange={handleDateChange}
                         />
                     )}
-
 
                     {/* Selector de hora */}
                     <Text style={styles.label}>Hora:</Text>
@@ -125,8 +123,8 @@ export default function AddNewEventModal({ visible, onClose }) {
                             value={eventTime}
                             mode="time"
                             display="spinner"
-                            is24Hour={true} // Asegura que el desplegable sea de 24 horas
-                            onChange={(e, time) => handleTimeChange(time)}
+                            is24Hour={true} // Asegura el formato 24hs
+                            onChange={handleTimeChange}
                         />
                     )}
 

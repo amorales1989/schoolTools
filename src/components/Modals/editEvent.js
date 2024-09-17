@@ -13,7 +13,7 @@ export default function EditEventModal({ visible, onClose, id, event }) {
     const [errors, setErrors] = useState({});
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
-
+console.log('ED edit',id)
     useEffect(() => {
         if (event) {
             setEventTitle(event.title);
@@ -32,11 +32,12 @@ export default function EditEventModal({ visible, onClose, id, event }) {
     }, [event]);
 
     const handleDateChange = (date) => {
+        setShowDatePicker(false);
         setEventDate(date);
     };
 
     const handleTimeChange = (event, selectedTime) => {
-        setShowTimePicker(false);
+        setShowTimePicker(false); // Cierra el picker
         if (selectedTime) {
             setEventTime(selectedTime);
         }
@@ -67,7 +68,7 @@ export default function EditEventModal({ visible, onClose, id, event }) {
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const year = date.getFullYear();
-        return `${day}/${month}`; // Retorna el formato "DD/MM"
+        return `${day}/${month}/${year}`; // Retorna el formato "DD/MM"
     };
 
     const formatTime = (time) => {
@@ -112,31 +113,31 @@ export default function EditEventModal({ visible, onClose, id, event }) {
                         />
                     )}
 
+                    {/* Selector de hora */}
                     <Text style={styles.label}>Hora:</Text>
                     {Platform.OS === 'web' ? (
-                         <DatePicker
-                         selected={eventTime}
-                         onChange={(date) => setEventTime(date)}
-                         showTimeSelect
-                         showTimeSelectOnly
-                         timeIntervals={15}
-                         timeCaption="Hora"
-                         dateFormat="HH:mm"
-                         timeFormat="HH:mm"
-                         className="custom-timepicker"
-                     />
+                        <DatePicker
+                            selected={eventTime}
+                            onChange={handleTimeChange}
+                            showTimeSelect
+                            showTimeSelectOnly
+                            timeIntervals={15}
+                            timeCaption="Hora"
+                            dateFormat="HH:mm" // Asegura que el desplegable sea de 24 horas
+                            timeFormat="HH:mm" // Asegura el formato 24 horas
+                            className="custom-timepicker"
+                        />
                     ) : (
                         <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.input}>
-                            <Text style={styles.inputText}>
-                                {eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
-                            </Text>
+                            <Text style={styles.inputText}>{formatTime(eventTime)}</Text>
                         </TouchableOpacity>
                     )}
-                    {showTimePicker && (
+                    {showTimePicker && Platform.OS !== 'web' && (
                         <DateTimePicker
                             value={eventTime}
                             mode="time"
                             display="spinner"
+                            is24Hour={true} // Asegura el formato 24hs
                             onChange={handleTimeChange}
                         />
                     )}

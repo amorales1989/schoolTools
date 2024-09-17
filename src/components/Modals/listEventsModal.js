@@ -15,17 +15,15 @@ export default function ListEventModal({ visible, onClose }) {
     const [selectedEventId, setSelectedEventId] = useState(null);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [deletedEvent, setDeletedEvent] = useState(null);
 
     useEffect(() => {
         fetchEvents();
     }, []);
-console.log(events)
     const fetchEvents = async () => {
         try {
             const data = await getEvents();
-            console.log('data',data)
             const filteredData = data.filter(event => !event.deleted_at).map(event => {
-                console.log('EVENT', event)
                 // Separar la fecha por "/"
                 const parts = event.date.split("/");
                 // Tomar solo el día y el mes
@@ -33,7 +31,6 @@ console.log(events)
                 // Crear un nuevo objeto de evento con la fecha formateada
                 return { ...event, date: formattedDate };
             });
-            console.log('filteredData',filteredData)
             setEvents(filteredData);
         } catch (error) {
             console.error('Error al obtener los eventos:', error);
@@ -44,11 +41,11 @@ console.log(events)
     const handleEditEventByIdPress = (eventId) => {
         // Busca el evento en la lista de eventos usando el eventId
         const event = events.find(e => e.id === eventId);
-    console.log(event)
-        // Verifica si el evento fue encontrado
+        // Verifica si el evento fue encontrado 
         if (event) {
-            setSelectedEvent(event); // Establece el evento completo en el estado
-            setEditEventByIdVisible(true); // Muestra el modal de edición
+            setSelectedEvent(event); 
+            setSelectedEventId(eventId);
+            setEditEventByIdVisible(true); 
         } else {
             console.error('Evento no encontrado');
         }
@@ -56,12 +53,13 @@ console.log(events)
     
 
     const handleDeleteConfirmation = (eventId, eventName) => {
-        setSelectedEvent({ id: eventId, name: eventName });
-        setDeleteModalVisible(true);
+        console.log(eventId, eventName)
+        setDeletedEvent({ id: eventId, name: eventName });
+        setDeleteModalVisible(true); 
     };
 
-    const handleDeleteEvent = () => {
-         deleteEventById(selectedEvent.id)
+    const handleDeleteEvent = () => { 
+         deleteEventById(deletedEvent.id)
             .then(() => {
                 fetchEvents(); // Recargar los eventos después de eliminar
                 setDeleteModalVisible(false);
@@ -114,14 +112,14 @@ console.log(events)
             <EditEventById
                 visible={editEventByIdVisible}
                 onClose={() => { setEditEventByIdVisible(false), fetchEvents() }}
-                eventId={selectedEventId}
+                id={selectedEventId}
                 event={selectedEvent}
             />
             <DeleteConfirmationModal
                 visible={deleteModalVisible}
                 onClose={() => setDeleteModalVisible(false)}
                 onConfirm={handleDeleteEvent}
-                name={selectedEvent ? selectedEvent.name : ''}
+                name={deletedEvent ? deletedEvent.name : ''}
             />
         </Modal>
     );

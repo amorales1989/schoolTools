@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, BackHandler } from 'react-native';
 import NameListModal from '../components/Modals/nameListModal';
 import AddNewTeensModal from '../components/Modals/addnewteens';
-import AddNewEventModal from '../components/Modals/addNewEvent';
-import AttendanceList from './AttendanceList';
 import { Ionicons } from '@expo/vector-icons';
 import getAlumnsWoman from '../service/getAlumnsWoman';
 import getAlumnsMan from '../service/getAlumnsMan';
@@ -22,8 +20,6 @@ export default function OtherScreen({ navigation }) {
     const [allAlumns, setAllAlumns] = useState([]);
     const [events, setEvents] = useState([]);
     const [refreshing, setRefreshing] = useState(false); // Nuevo estado para indicar si se está actualizando
-
-
 
     useEffect(() => {
         loadAlumns();
@@ -85,19 +81,47 @@ export default function OtherScreen({ navigation }) {
         try {
             setRefreshing(true);
             const data = await getEvents();
-            const dataFilter = data.filter(event => !event.deleted_date);
-            const upcomingEvents = dataFilter.slice(0, 4).map(event => {
-                const parts = event.date.split("/");
-                const formattedDate = parts.slice(0, 2).join("/");
+            
+            // Obtiene la fecha actual
+            const today = new Date();
+            
+            // Filtra eventos eliminados y eventos que son anteriores a la fecha actual
+            const dataFilter = data
+                .filter(event => !event.deleted_at)
+                .filter(event => {
+                    const [day, month, year] = event.date.split("/");
+                    const eventDate = new Date(year, month - 1, day); // Meses en Date constructor empiezan desde 0
+                    return eventDate >= today; // Filtra eventos pasados
+                });
+            
+            
+            // Mapea y convierte las fechas a objetos Date
+            const eventsWithDates = dataFilter.map(event => {
+                const [day, month, year] = event.date.split("/");
+                const formattedDate = new Date(year, month - 1, day); // Meses en Date constructor empiezan desde 0
                 return { ...event, date: formattedDate };
             });
+                        
+            // Ordena eventos por fecha
+            const sortedEvents = eventsWithDates.sort((a, b) => a.date - b.date);
+            
+            // Formatea las fechas nuevamente para el UI
+            const upcomingEvents = sortedEvents.slice(0, 4).map(event => {
+                const day = event.date.getDate().toString().padStart(2, '0');
+                const month = (event.date.getMonth() + 1).toString().padStart(2, '0'); // Los meses empiezan en 0
+            //  const year = event.date.getFullYear();
+                const formattedDate = `${day}/${month}`;
+                return { ...event, date: formattedDate };
+            });
+               
             setEvents(upcomingEvents);
         } catch (error) {
             console.log('Error al obtener los eventos', error);
         } finally {
-            setRefreshing(false); 
+            setRefreshing(false);
         }
     };
+    
     
 
     return (
