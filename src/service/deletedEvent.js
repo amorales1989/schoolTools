@@ -1,7 +1,6 @@
 import { supabase } from "../../supabase";
 
 const deleteEventById = async (eventId) => {
-    console.log('ID', eventId);
 
     // Validación simple
     if (!eventId) {

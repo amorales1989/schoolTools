@@ -1,7 +1,6 @@
 import { supabase } from "../../supabase";
 
 const addNewTeens = async (body) => {
-    console.log(body)
     try {
         const { data, error } = await supabase
             .from('alumns')

@@ -13,7 +13,6 @@ export default function EditEventModal({ visible, onClose, id, event }) {
     const [errors, setErrors] = useState({});
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
-console.log('ED edit',id)
     useEffect(() => {
         if (event) {
             setEventTitle(event.title);

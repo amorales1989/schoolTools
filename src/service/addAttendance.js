@@ -1,33 +1,37 @@
-async function saveAttendanceData(attendanceData) {
-    console.log(attendanceData);
-    try {
-        const response = await fetch('http://192.168.1.138:3006/attendance', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(attendanceData),
-        });
-        console.log("RESPONSE", response);
+import { supabase } from "../../supabase";
 
-        // Verificar si la solicitud fue exitosa
-        if (!response.ok) {
-            throw new Error('Error al enviar la información de asistencia al backend');
+const saveAttendanceData = async (attendanceData) => {
+    try {
+        // Extraer la fecha del primer elemento del array (asumiendo que todos tienen la misma fecha)
+        const eventDate = attendanceData.length > 0 ? attendanceData[0].date : null;
+
+        // Si no hay fecha en los datos de asistencia, lanzar un error
+        if (!eventDate) {
+            throw new Error('No se pudo encontrar la fecha en los datos de asistencia.');
         }
 
-        // Leer la respuesta solo si la solicitud fue exitosa
-        let data;
-        try {
-            data = await response.json();
-        } catch (error) {
-            //console.error('Error al analizar la respuesta JSON:', error);
-            }
+        // Prepara los datos para insertar en la tabla 'asistencia'
+        const formattedData = (({
+            absentee: JSON.stringify({ // Guardar los datos como un JSON
+                attendanceData
+            }),
+            fecha: eventDate, // Guardar la fecha en la columna 'fecha'
+        }));
 
-        return data;
+        // Inserta los datos en la tabla 'asistencia'
+        const { data, error } = await supabase
+            .from('asistencia')
+            .insert(formattedData);
+
+        if (error) {
+            throw new Error('Error al guardar la información de asistencia: ' + error.message);
+        }
+
+        return data; // Devuelve los datos insertados
     } catch (error) {
+        console.error('Error:', error.message);
         throw error;
     }
-}
-
+};
 
 export { saveAttendanceData };

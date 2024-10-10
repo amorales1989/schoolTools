@@ -53,7 +53,6 @@ export default function ListEventModal({ visible, onClose }) {
     
 
     const handleDeleteConfirmation = (eventId, eventName) => {
-        console.log(eventId, eventName)
         setDeletedEvent({ id: eventId, name: eventName });
         setDeleteModalVisible(true); 
     };

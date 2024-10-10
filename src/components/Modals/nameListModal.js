@@ -52,7 +52,6 @@ export default function NameListModal({ visible, onClose, alumns }) {
                 // Retornar el objeto de asistencia con el estado actualizado
                 return { alumnId: alumn.id, date: date, present: isPresent };
             });
-    
             // Enviar el nuevo arreglo actualizado al servidor
             await saveAttendanceData(updatedAttendanceData);
             setAttendanceData(initializeAttendanceData());

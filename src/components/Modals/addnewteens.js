@@ -33,7 +33,6 @@ export default function AddNewTeensModal({ visible, onClose }) {
 
         const body = { name, lastName, sex: sex.trim().toLowerCase(), phone, dni, birthdate, address }
         await addNewTeens(body);
-        console.log('Guardando datos:', body);
 
         // Cierra el modal
         onClose();

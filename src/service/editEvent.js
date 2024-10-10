@@ -1,8 +1,6 @@
 import { supabase } from "../../supabase";
 
 const editEvent = async (eventId, body) => {
-    console.log('BODY',body);
-    console.log('ID',eventId);
     try {
         // Actualiza el evento con el ID específico en la tabla 'evento'
         const { data, error } = await supabase

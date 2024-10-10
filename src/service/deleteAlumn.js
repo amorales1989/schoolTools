@@ -1,7 +1,6 @@
 import { supabase } from "../../supabase";
 
 const deleteAlumnById = async (alumnId) => {
-    console.log(alumnId)
     try {
         // Obtener la fecha y hora actual
         const now = new Date();
